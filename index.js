@@ -22,18 +22,18 @@ const fs = require('fs')
   })
 
   if (songs.length) {
-    for (let song of songs) {
+    // for (let song of songs) {
+    for (let idx in songs) {
+      let song = songs[idx]
       await page.goto(song.url)
       let lyric = await page.evaluate(() => {
         let ly = document.getElementById('divLyric'),
           lyric = ''
-
         if (ly) {
           lyric = document
             .getElementById('divLyric')
             .innerHTML.replace(/\<br\>/g, '')
         }
-
         return lyric
       })
 
@@ -44,6 +44,7 @@ const fs = require('fs')
       // })
       // add data to json file
       // https://stackoverflow.com/questions/36856232/write-add-data-in-json-file-using-node-js
+
       let obj = {
         songs: [],
       }
@@ -52,14 +53,12 @@ const fs = require('fs')
           console.log(err)
         } else {
           obj = JSON.parse(data)
-
-          for (let i = 0; i < 5; i++) {
-            obj.songs.push({
-              title: song.title,
-              lyric: (lyric || '').slice(0, 400),
-              url: song.url || ''
-            })
-          }
+          obj.songs.push({
+            itemID: idx.toString(),
+            title: song.title,
+            lyric: (lyric || '').slice(0, 400),
+            url: song.url || ''
+          })
 
           let json = JSON.stringify(obj)
           fs.writeFile('songs.json', json, function(err) {
